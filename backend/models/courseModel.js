@@ -3,7 +3,8 @@ const mongoose = require('mongoose')
 const courseSchema = mongoose.Schema(
     {
         course_id: {
-          "type": "String"
+          type: String,
+          unique: true
         },
         course_title: {
           type: String,

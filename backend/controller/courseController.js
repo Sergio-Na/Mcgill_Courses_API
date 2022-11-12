@@ -1,7 +1,7 @@
 const asyncHandler = require('express-async-handler')
 const Course = require('../models/courseModel')
 
-// @desc Get goals
+// @desc Get courses
 // @route GET /api/courses
 // @access Public 
 const getCourses = asyncHandler(async (req, res) => {
@@ -10,7 +10,22 @@ const getCourses = asyncHandler(async (req, res) => {
 })
 
 
-// @desc Set goal
+// @desc Get course info with course code 
+// @route GET /api/course/course_id
+// @access Public
+const getCourseByCode = asyncHandler(async (req, res) => {
+    Course.findOne({ course_id : req.params.course_id}, function(err, result){
+        if(err) {
+            res.status(400)
+            throw new Error('Course not found, identifier must be in format comp-123')
+        }else{
+            res.status(200).json(result)
+            
+        }
+    })
+})
+
+// @desc Set course
 // @route POST /api/courses
 // @access Private 
 const setCourse = asyncHandler(async (req, res) => {
@@ -36,39 +51,36 @@ const setCourse = asyncHandler(async (req, res) => {
 
 
 // @desc Update course
-// @route PUT /api/courses/:id
+// @route PUT /api/courses/:course_id
 // @access Private 
 const updateCourse = asyncHandler(async (req, res) => {
-    const course = await Course.findById(req.params.id)
-
-
-    if(!course){
-        res.status(400)
-        throw new Error('Course not found')
-    }
-
-    const updatedCourse = await Course.findByIdAndUpdate(req.params.id, req.body, {new:true})
-
-    res.status(200).json(updatedCourse)
+    Course.findOne({ course_id : req.params.course_id}, async function(err, result){
+        if(err) {
+            res.status(400)
+            throw new Error('Course not found, identifier must be in format comp-123')
+        }else{
+            const updatedCourse = await Course.findByIdAndUpdate(result._id, req.body, {new:true})
+            res.status(200).json(updatedCourse)
+            
+        }
+    })
 })
 
 // @desc delete goal
-// @route DELETE /api/courses/:id
+// @route DELETE /api/courses/:course_id
 // @access Private 
 const deleteCourse = asyncHandler(async (req, res) => {
-
-    const course = await Course.findById(req.params.id)
-
-
-    if(!course){
-        res.status(400)
-        throw new Error('Course not found')
-    }
-
-    await course.remove()
-
-
-    res.status(200).json({id : req.params.id})
+    Course.findOne({ course_id : req.params.course_id}, async function(err, result){
+        if(err) {
+            res.status(400)
+            throw new Error('Course not found, identifier must be in format comp-123')
+        }else{
+            const course = await Course.findById(result._id, req.body, {new:true})
+            course.remove()
+            res.status(200).json(course)
+            
+        }
+    })
 })
 
 
@@ -77,5 +89,6 @@ module.exports = {
     getCourses,
     setCourse,
     updateCourse,
-    deleteCourse
+    deleteCourse,
+    getCourseByCode,
 }
